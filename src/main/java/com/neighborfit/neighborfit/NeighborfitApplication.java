@@ -19,7 +19,7 @@ public class NeighborfitApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/api/**")
-					.allowedOrigins("http://localhost:3000","https://comforting-licorice-b485c9.netlify.app/")
+					.allowedOrigins("http://localhost:3000","https://neighbor-fit-frontend-git-main-thisisgovinds-projects.vercel.app/")
 					.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 					.allowedHeaders("*")
 					.allowCredentials(true);
