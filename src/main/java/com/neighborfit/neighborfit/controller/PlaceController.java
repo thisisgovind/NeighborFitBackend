@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:3000","https://neighbor-fit-frontend-git-main-thisisgovinds-projects.vercel.app"})
+@CrossOrigin(origins = {"http://localhost:3000","https://neighbor-fit-frontend-git-main-thisisgovinds-projects.vercel.app","https://neighbor-fit-frontend.vercel.app"})
 public class PlaceController {
     private final PlaceRepository placeRepository;
     private static final Logger logger = Logger.getLogger(PlaceController.class.getName());
