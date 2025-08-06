@@ -46,6 +46,12 @@ public class PlaceController {
     @PostMapping("/places")
     public ResponseEntity<?> addPlace(@RequestBody Place place) {
         try {
+            // Trim the place name to handle trailing spaces
+            if (place.getName() != null) {
+                String originalName = place.getName();
+                place.setName(place.getName().trim());
+                logger.info("Adding place: '" + originalName + "' (trimmed: '" + place.getName() + "')");
+            }
             // Validate input
             if (place.getName() == null || place.getName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Place name is required");
@@ -89,8 +95,13 @@ public class PlaceController {
     // Get societies by place name
     @GetMapping("/places/{name}")
     public ResponseEntity<?> getPlaceByName(@PathVariable String name) {
-        return placeRepository.findByNameIgnoreCase(name)
-                .map(ResponseEntity::ok)
+        String trimmedName = name.trim();
+        logger.info("Searching for place: '" + name + "' (trimmed: '" + trimmedName + "')");
+        return placeRepository.findByNameIgnoreCase(trimmedName)
+                .map(place -> {
+                    logger.info("Found place: " + place.getName() + " with " + place.getSocieties().size() + " societies");
+                    return ResponseEntity.ok(place);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -104,6 +115,7 @@ public class PlaceController {
     @PostMapping("/places/{name}/societies")
     public ResponseEntity<?> addSocietyToPlace(@PathVariable String name, @RequestBody Society newSociety) {
         try {
+            String trimmedName = name.trim();
             // Validate input
             if (newSociety.getName() == null || newSociety.getName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Society name is required");
@@ -124,7 +136,7 @@ public class PlaceController {
                 return ResponseEntity.badRequest().body("Public transport rating must be between 1 and 5");
             }
 
-            Query query = new Query(Criteria.where("name").is(name));
+            Query query = new Query(Criteria.where("name").is(trimmedName));
             Update update = new Update().push("societies", newSociety);
             var result = mongoTemplate.updateFirst(query, update, Place.class);
 
@@ -145,7 +157,9 @@ public class PlaceController {
         @RequestBody Society updatedSociety
     ) {
         try {
-            Query query = new Query(Criteria.where("name").is(placeName).and("societies.name").is(societyName));
+            String trimmedPlaceName = placeName.trim();
+            String trimmedSocietyName = societyName.trim();
+            Query query = new Query(Criteria.where("name").is(trimmedPlaceName).and("societies.name").is(trimmedSocietyName));
             Update update = new Update()
                 .set("societies.$.name", updatedSociety.getName())
                 .set("societies.$.safetyRating", updatedSociety.getSafetyRating())
